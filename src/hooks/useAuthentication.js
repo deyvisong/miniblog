@@ -1,4 +1,4 @@
-import { db } from "../firebase/config";
+import { app, db } from "../firebase/config";
 
 import {
   getAuth,
@@ -18,7 +18,7 @@ export const useAuthentication = () => {
   // deal with memory leak
   const [cancelled, setCancelled] = useState(false);
 
-  const auth = getAuth();
+  const auth = getAuth(app);
 
   function checkIfIsCancelled() {
     if (cancelled) {
@@ -64,6 +64,39 @@ export const useAuthentication = () => {
     }
   };
 
+  // logout - sign out
+  const logout = () => {
+    checkIfIsCancelled();
+    signOut(auth);
+  };
+
+  // login - sign in
+  const login = async (data) => {
+    checkIfIsCancelled();
+
+    setLoading(true);
+    setError(false);
+
+    try {
+      await signInWithEmailAndPassword(auth, data.email, data.password);
+      setLoading(false);
+    } catch (error) {
+      let systemErrorMessage;
+
+      if (error.message.includes("invalid")) {
+        systemErrorMessage =
+          "The username or password you entered is incorrect.";
+      } else if (error.message.includes("invalid")) {
+        systemErrorMessage =
+          "The username or password you entered is incorrect.";
+      } else {
+        systemErrorMessage = "Something went wrong. Please try again.";
+      }
+      setError(systemErrorMessage);
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     return () => setCancelled(true);
   }, []);
@@ -73,5 +106,7 @@ export const useAuthentication = () => {
     createUser,
     error,
     loading,
+    logout,
+    login,
   };
 };

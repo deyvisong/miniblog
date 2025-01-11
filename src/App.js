@@ -54,9 +54,12 @@ function App() {
               />
               <Route
                 path="/posts/create"
-                element={user ? <CreatePost /> : <Navigate to="/" />}
+                element={user ? <CreatePost /> : <Navigate to="/login" />}
               />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route
+                path="/dashboard"
+                element={user ? <Dashboard /> : <Navigate to="/login" />}
+              />
             </Routes>
           </div>
           <Footer />
