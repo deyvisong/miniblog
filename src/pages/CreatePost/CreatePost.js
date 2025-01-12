@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNativate } from "react-router-dom";
 import { useAuthValue } from "../../context/AuthContext";
 import { useAuthentication } from "../../hooks/useAuthentication";
+import { useInsertDocument } from "../../hooks/useInsertDocument";
 
 const CreatePost = () => {
   const [title, setTitle] = useState("");
@@ -11,10 +12,30 @@ const CreatePost = () => {
   const [body, setBody] = useState("");
   const [tags, setTags] = useState([]);
   const [formError, setFormError] = useState("");
-  const { loading } = useAuthentication;
+
+  const { user } = useAuthValue();
+
+  const { insertDocument, response } = useInsertDocument("posts");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setFormError("");
+
+    // validate image URL
+
+    // create tag array
+
+    // check all values
+    insertDocument({
+      title,
+      image,
+      body,
+      tags,
+      uid: user.uid,
+      createdBy: user.displayName,
+    });
+
+    // redirect homepage
   };
 
   return (
@@ -65,14 +86,13 @@ const CreatePost = () => {
             value={tags}
           />
         </label>
-        <button className="btn">Post</button>
-        {/* {!loading && <button className="btn">Sign Up</button>}
-        {loading && (
+        {!response.loading && <button className="btn">Post</button>}
+        {response.loading && (
           <button className="btn" disabled>
-            Creating...
+            Posting...
           </button>
         )}
-        {formError && <p className="error">{formError}</p>} */}
+        {response.error && <p className="error">{response.error}</p>}
       </form>
     </div>
   );
