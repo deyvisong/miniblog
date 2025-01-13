@@ -1,7 +1,7 @@
 import styles from "./CreatePost.module.css";
 
 import { useState } from "react";
-import { useNativate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuthValue } from "../../context/AuthContext";
 import { useAuthentication } from "../../hooks/useAuthentication";
 import { useInsertDocument } from "../../hooks/useInsertDocument";
@@ -16,26 +16,39 @@ const CreatePost = () => {
   const { user } = useAuthValue();
 
   const { insertDocument, response } = useInsertDocument("posts");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setFormError("");
 
     // validate image URL
+    try {
+      new URL(image);
+    } catch (error) {
+      setFormError("The image must be an URL.");
+    }
 
     // create tag array
+    const tagsArray = tags.split(",").map((tag) => tag.trim().toLowerCase());
 
     // check all values
+    if (!title || !image || !tags || !body) {
+      setFormError("Please, fill all fields");
+    }
+
+    if (formError) return;
     insertDocument({
       title,
       image,
       body,
-      tags,
+      tagsArray,
       uid: user.uid,
       createdBy: user.displayName,
     });
 
     // redirect homepage
+    navigate("/");
   };
 
   return (
@@ -93,6 +106,7 @@ const CreatePost = () => {
           </button>
         )}
         {response.error && <p className="error">{response.error}</p>}
+        {formError && <p className="error">{formError}</p>}
       </form>
     </div>
   );
